@@ -1,0 +1,92 @@
+# spring:
+#   application:
+#     name: PROMOTION-SERVICE
+#   config:
+#     import: optional:configserver:http://localhost:8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+server:
+  port: 8090
+  error:
+    include-message: never
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
+
+spring:
+  application:
+    name: SHIPPING-SERVICE
+  rabbitmq:
+    host: localhost # RabbitMQ host (localhost if running on the same machine)
+    port: 5672 # Default RabbitMQ port
+    username: guest # Default RabbitMQ username
+    password: guest # Default RabbitMQ password
+    virtual-host: / # Default virtual host ("/")
+    listener:
+      simple:
+        retry:
+          enabled: true # Enable retry for message consumption
+          initial-interval: 1000 # Initial retry interval in milliseconds
+          max-attempts: 5 # Maximum number of retry attempts
+        acknowledge-mode: auto # Auto acknowledgment of messages
+   
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:postgresql://localhost:26257/defaultdb?sslmode=disable
+    username: root
+    password: ""
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop # Change this if needed (create, create-drop, validate, none)
+    # properties:
+    #   hibernate:
+    #     dialect: org.hibernate.dialect.CockroachDB201Dialect # Correct dialect
+    show-sql: true
+
+  sql:
+    init:
+      #   data-locations:
+      #     - classpath:sql/init.sql
+      mode: always
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG    
+        data: DEBUG
+        security: TRACE
+    com:
+      shipping:
+        service: DEBUG
+    hibernate:
+      SQL: DEBUG
+      type: TRACE
+
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+
+jwt:
+  base64-secret: hl4gDqBxBgOSDWqBlvwFYQInjYRGAdS4lUT7Nf3Zk1nItoSQ9wSFDPU+kXHKcKUW/UKbpGv9bCsa9S/QsoFRHw==
+  access_token-validity-in-seconds: 90000000
+  refresh_token-validity-in-seconds: 100000000
