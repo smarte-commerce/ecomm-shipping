@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @Builder
@@ -16,15 +15,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CreatePackageRequest {
 
     @NotNull(message = "Shipment ID is required")
-    @JsonProperty("shipment_id")
     private Long shipmentId;
 
     @NotBlank(message = "Package number is required")
     @Size(max = 50, message = "Package number must not exceed 50 characters")
-    @JsonProperty("package_number")
     private String packageNumber;
 
-    @JsonProperty("tracking_number")
     private String trackingNumber;
 
     @NotNull(message = "Weight is required")
@@ -34,19 +30,14 @@ public class CreatePackageRequest {
     @NotNull(message = "Dimensions are required")
     private DimensionsRequest dimensions;
 
-    @JsonProperty("package_type")
     private String packageType;
 
-    @JsonProperty("is_fragile")
     private Boolean isFragile;
 
-    @JsonProperty("is_liquid")
     private Boolean isLiquid;
 
-    @JsonProperty("is_hazardous")
     private Boolean isHazardous;
 
-    @JsonProperty("special_instructions")
     private String specialInstructions;
 
     @Data
