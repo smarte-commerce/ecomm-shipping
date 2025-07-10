@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @Builder
@@ -30,38 +29,29 @@ public class CreateShipmentRequest {
     private Integer methodId;
 
     @NotNull(message = "From address is required")
-    @JsonProperty("from_address")
     private AddressRequest fromAddress;
 
     @NotNull(message = "To address is required")
-    @JsonProperty("to_address")
     private AddressRequest toAddress;
 
     @NotNull(message = "Total weight is required")
     @DecimalMin(value = "0.01", message = "Total weight must be greater than 0")
-    @JsonProperty("total_weight")
     private BigDecimal totalWeight;
 
     @NotNull(message = "Total value is required")
     @DecimalMin(value = "0.01", message = "Total value must be greater than 0")
-    @JsonProperty("total_value")
     private BigDecimal totalValue;
 
     @DecimalMin(value = "0.0", message = "Insurance cost cannot be negative")
-    @JsonProperty("insurance_cost")
     private BigDecimal insuranceCost;
 
-    @JsonProperty("estimated_delivery_date")
     private LocalDate estimatedDeliveryDate;
 
-    @JsonProperty("delivery_notes")
     private String deliveryNotes;
 
     @NotEmpty(message = "Shipment items are required")
-    @JsonProperty("shipment_items")
     private List<ShipmentItemRequest> shipmentItems;
 
-    @JsonProperty("shipment_packages")
     private List<ShipmentPackageRequest> shipmentPackages;
 
     @Data
@@ -70,10 +60,8 @@ public class CreateShipmentRequest {
     @AllArgsConstructor
     public static class AddressRequest {
         @NotBlank(message = "Address line 1 is required")
-        @JsonProperty("address_line_1")
         private String addressLine1;
 
-        @JsonProperty("address_line_2")
         private String addressLine2;
 
         @NotBlank(message = "City is required")
@@ -83,19 +71,15 @@ public class CreateShipmentRequest {
         private String state;
 
         @NotBlank(message = "Postal code is required")
-        @JsonProperty("postal_code")
         private String postalCode;
 
         @NotBlank(message = "Country is required")
         private String country;
 
-        @JsonProperty("company_name")
         private String companyName;
 
-        @JsonProperty("contact_name")
         private String contactName;
 
-        @JsonProperty("phone_number")
         private String phoneNumber;
 
         @Email(message = "Valid email is required")
@@ -108,18 +92,14 @@ public class CreateShipmentRequest {
     @AllArgsConstructor
     public static class ShipmentItemRequest {
         @NotNull(message = "Order item ID is required")
-        @JsonProperty("order_item_id")
         private Long orderItemId;
 
         @NotNull(message = "Product ID is required")
-        @JsonProperty("product_id")
         private Long productId;
 
         @NotBlank(message = "Product name is required")
-        @JsonProperty("product_name")
         private String productName;
 
-        @JsonProperty("product_sku")
         private String productSku;
 
         @NotNull(message = "Quantity is required")
@@ -128,10 +108,8 @@ public class CreateShipmentRequest {
 
         @NotNull(message = "Unit weight is required")
         @DecimalMin(value = "0.01", message = "Unit weight must be greater than 0")
-        @JsonProperty("unit_weight")
         private BigDecimal unitWeight;
 
-        @JsonProperty("dimensions")
         private DimensionsRequest dimensions;
     }
 
@@ -141,7 +119,6 @@ public class CreateShipmentRequest {
     @AllArgsConstructor
     public static class ShipmentPackageRequest {
         @NotBlank(message = "Package number is required")
-        @JsonProperty("package_number")
         private String packageNumber;
 
         @NotNull(message = "Weight is required")
@@ -151,16 +128,12 @@ public class CreateShipmentRequest {
         @NotNull(message = "Dimensions are required")
         private DimensionsRequest dimensions;
 
-        @JsonProperty("package_type")
         private String packageType;
 
-        @JsonProperty("is_fragile")
         private Boolean isFragile;
 
-        @JsonProperty("is_liquid")
         private Boolean isLiquid;
 
-        @JsonProperty("is_hazardous")
         private Boolean isHazardous;
     }
 
