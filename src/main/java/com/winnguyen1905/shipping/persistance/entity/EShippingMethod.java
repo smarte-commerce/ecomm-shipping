@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.winnguyen1905.shipping.common.enums.ServiceType;
+import com.winnguyen1905.shipping.common.constants.ShippingConstants;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -51,43 +53,43 @@ public class EShippingMethod {
     
     @Column(name = "base_rate", nullable = false, precision = 10, scale = 2)
     @Builder.Default
-    private BigDecimal baseRate = BigDecimal.ZERO;
+    private BigDecimal baseRate = ShippingConstants.DEFAULT_BASE_RATE;
     
     @Column(name = "per_kg_rate", nullable = false, precision = 10, scale = 2)
     @Builder.Default
-    private BigDecimal perKgRate = BigDecimal.ZERO;
+    private BigDecimal perKgRate = ShippingConstants.DEFAULT_PER_KG_RATE;
     
     @Column(name = "per_item_rate", nullable = false, precision = 10, scale = 2)
     @Builder.Default
-    private BigDecimal perItemRate = BigDecimal.ZERO;
+    private BigDecimal perItemRate = ShippingConstants.DEFAULT_PER_ITEM_RATE;
     
     @Column(name = "min_weight", precision = 8, scale = 2)
     @Builder.Default
-    private BigDecimal minWeight = BigDecimal.ZERO;
+    private BigDecimal minWeight = ShippingConstants.DEFAULT_MIN_WEIGHT;
     
     @Column(name = "max_weight", precision = 8, scale = 2)
     @Builder.Default
-    private BigDecimal maxWeight = new BigDecimal("999.99");
+    private BigDecimal maxWeight = ShippingConstants.DEFAULT_MAX_WEIGHT;
     
     @Column(name = "min_order_value", precision = 10, scale = 2)
     @Builder.Default
-    private BigDecimal minOrderValue = BigDecimal.ZERO;
+    private BigDecimal minOrderValue = ShippingConstants.DEFAULT_MIN_ORDER_VALUE;
     
     @Column(name = "max_order_value", precision = 10, scale = 2)
     @Builder.Default
-    private BigDecimal maxOrderValue = new BigDecimal("999999.99");
+    private BigDecimal maxOrderValue = ShippingConstants.DEFAULT_MAX_ORDER_VALUE;
     
     @Column(name = "estimated_days_min")
     @Builder.Default
-    private Integer estimatedDaysMin = 1;
+    private Integer estimatedDaysMin = ShippingConstants.DEFAULT_MIN_DELIVERY_DAYS;
     
     @Column(name = "estimated_days_max")
     @Builder.Default
-    private Integer estimatedDaysMax = 7;
+    private Integer estimatedDaysMax = ShippingConstants.DEFAULT_MAX_DELIVERY_DAYS;
     
     @Column(name = "is_active")
     @Builder.Default
-    private Boolean isActive = true;
+    private Boolean isActive = ShippingConstants.DEFAULT_IS_ACTIVE;
     
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -100,8 +102,4 @@ public class EShippingMethod {
     @OneToMany(mappedBy = "method", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<EShipment> shipments;
-    
-    public enum ServiceType {
-        STANDARD, EXPRESS, OVERNIGHT, SAME_DAY, ECONOMY
-    }
 } 

@@ -5,6 +5,8 @@ import java.time.Instant;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.winnguyen1905.shipping.common.constants.ShippingConstants;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,7 +46,7 @@ public class EShippingRateCalculation {
     
     @Column(name = "package_count")
     @Builder.Default
-    private Integer packageCount = 1;
+    private Integer packageCount = ShippingConstants.DEFAULT_PACKAGE_COUNT;
     
     @Column(name = "requested_service_type", length = 50)
     private String requestedServiceType;
