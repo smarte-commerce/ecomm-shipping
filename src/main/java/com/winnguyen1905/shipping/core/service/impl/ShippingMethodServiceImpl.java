@@ -5,7 +5,6 @@ import com.winnguyen1905.shipping.core.model.response.ShippingMethodResponse;
 import com.winnguyen1905.shipping.core.service.ShippingMethodService;
 import com.winnguyen1905.shipping.common.enums.ServiceType;
 import com.winnguyen1905.shipping.common.enums.ShipmentStatus;
-import com.winnguyen1905.shipping.common.utils.ShippingValidationUtils;
 import com.winnguyen1905.shipping.exception.BadRequestException;
 import com.winnguyen1905.shipping.exception.BusinessLogicException;
 import com.winnguyen1905.shipping.exception.ResourceNotFoundException;
@@ -18,6 +17,8 @@ import com.winnguyen1905.shipping.persistance.repository.ShippingCarrierReposito
 import com.winnguyen1905.shipping.persistance.repository.ShippingZoneRepository;
 import com.winnguyen1905.shipping.persistance.repository.ShipmentRepository;
 import com.winnguyen1905.shipping.secure.TAccountRequest;
+import com.winnguyen1905.shipping.util.ShippingValidationUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
