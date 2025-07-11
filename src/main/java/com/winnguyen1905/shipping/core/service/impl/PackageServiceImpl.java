@@ -14,9 +14,10 @@ import com.winnguyen1905.shipping.persistance.entity.EShipmentTrackingEvent;
 import com.winnguyen1905.shipping.persistance.repository.ShipmentPackageRepository;
 import com.winnguyen1905.shipping.persistance.repository.ShipmentRepository;
 import com.winnguyen1905.shipping.persistance.repository.ShipmentTrackingEventRepository;
-import com.winnguyen1905.shipping.common.utils.ShippingValidationUtils;
 import com.winnguyen1905.shipping.common.constants.ShippingConstants;
 import com.winnguyen1905.shipping.secure.TAccountRequest;
+import com.winnguyen1905.shipping.util.ShippingValidationUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
