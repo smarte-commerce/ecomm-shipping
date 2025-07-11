@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.winnguyen1905.shipping.persistance.entity.EShippingMethod;
-import com.winnguyen1905.shipping.persistance.entity.EShippingMethod.ServiceType;
+import com.winnguyen1905.shipping.common.enums.ServiceType;
 
 @Repository
 public interface ShippingMethodRepository extends JpaRepository<EShippingMethod, Integer> {
@@ -47,6 +47,12 @@ public interface ShippingMethodRepository extends JpaRepository<EShippingMethod,
     
     @Query("SELECT m FROM EShippingMethod m WHERE m.serviceType = :serviceType AND m.isActive = true ORDER BY m.estimatedDaysMin ASC")
     List<EShippingMethod> findByServiceTypeOrderByDeliveryTime(@Param("serviceType") ServiceType serviceType);
+    
+    @Query("SELECT COUNT(m) FROM EShippingMethod m WHERE m.carrier.carrierId = :carrierId AND m.isActive = :isActive")
+    long countByCarrierCarrierIdAndIsActive(@Param("carrierId") Integer carrierId, @Param("isActive") Boolean isActive);
+    
+    @Query("SELECT COUNT(m) FROM EShippingMethod m WHERE m.zone.zoneId = :zoneId AND m.isActive = :isActive")
+    long countByZoneZoneIdAndIsActive(@Param("zoneId") Integer zoneId, @Param("isActive") Boolean isActive);
     
     boolean existsByMethodCode(String methodCode);
 } 
