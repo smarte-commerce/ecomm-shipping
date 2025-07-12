@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.winnguyen1905.shipping.persistance.entity.EShipment;
-import com.winnguyen1905.shipping.persistance.entity.EShipment.ShipmentStatus;
+import com.winnguyen1905.shipping.common.enums.ShipmentStatus;
 
 @Repository
 public interface ShipmentRepository extends JpaRepository<EShipment, Long> {
@@ -55,6 +55,12 @@ public interface ShipmentRepository extends JpaRepository<EShipment, Long> {
     
     @Query("SELECT COUNT(s) FROM EShipment s WHERE s.carrier.carrierId = :carrierId")
     Long countByCarrier(@Param("carrierId") Integer carrierId);
+    
+    @Query("SELECT COUNT(s) FROM EShipment s WHERE s.method.methodId = :methodId")
+    Long countByMethodMethodId(@Param("methodId") Integer methodId);
+    
+    @Query("SELECT COUNT(s) FROM EShipment s WHERE s.method.methodId = :methodId AND s.status != :status")
+    Long countByMethodMethodIdAndStatusNot(@Param("methodId") Integer methodId, @Param("status") ShipmentStatus status);
     
     @Query("SELECT s FROM EShipment s WHERE s.trackingNumber IS NOT NULL AND s.status NOT IN ('DELIVERED', 'CANCELLED', 'RETURNED')")
     List<EShipment> findActiveShipmentsWithTracking();
