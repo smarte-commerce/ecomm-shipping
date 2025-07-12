@@ -15,9 +15,10 @@ import com.winnguyen1905.shipping.persistance.repository.ShippingCarrierReposito
 import com.winnguyen1905.shipping.persistance.repository.ShippingMethodRepository;
 import com.winnguyen1905.shipping.persistance.repository.ShippingRateCalculationRepository;
 import com.winnguyen1905.shipping.persistance.repository.ShippingZoneRepository;
-import com.winnguyen1905.shipping.common.utils.ShippingValidationUtils;
 import com.winnguyen1905.shipping.common.enums.ServiceType;
 import com.winnguyen1905.shipping.secure.TAccountRequest;
+import com.winnguyen1905.shipping.util.ShippingValidationUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
