@@ -1,0 +1,37 @@
+[
+
+
+
+  {
+    "vendor": {
+      "name": "Shop ABC",
+      "address": { "country": "VN", "city": "Ho Chi Minh", "zip": "700000", "street": "123 ABC St" }
+    },
+    "customer": {
+      "name": "Lợi Nguyễn", 
+      "address": { "country": "VN", "city": "Hanoi", "zip": "100000", "street": "456 DEF St" }
+    },
+    "package": {
+      "weight": 1.5, "dimensions": { "length": 30, "width": 20, "height": 10 },
+      "type": "box", "declaredValue": 1000000, "currency": "VND"
+    }
+  },
+  
+  
+  {
+    "customer": { "name": "Lợi Nguyễn", "address": {...} },
+    "vendorPackages": [
+      { "vendor": {...}, "packageInfo": {...} },
+      { "vendor": {...}, "packageInfo": {...} }
+    ]
+  },
+  {
+    "quoteId": "SQ_1703123456789_abcd1234",
+    "shippingOptions": [
+      { "provider": "DHL", "service": "Express", "cost": 100000, "currency": "VND", "estimatedDays": 2 },
+      { "provider": "VNPost", "service": "Economy", "cost": 30000, "currency": "VND", "estimatedDays": 5 }
+    ],
+    "recommendedOption": {...}, "cheapestOption": {...}, "fastestOption": {...}
+  }
+  
+]
