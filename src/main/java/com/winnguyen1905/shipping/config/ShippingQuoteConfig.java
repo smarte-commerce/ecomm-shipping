@@ -24,88 +24,88 @@ import java.time.Duration;
 @Slf4j
 public class ShippingQuoteConfig {
 
-    @Value("${shipping.cache.ttl-minutes:10}")
-    private int cacheTtlMinutes;
+  @Value("${shipping.cache.ttl-minutes:10}")
+  private int cacheTtlMinutes;
 
-    @Value("${shipping.circuit-breaker.failure-rate-threshold:50}")
-    private float circuitBreakerFailureRate;
+  @Value("${shipping.circuit-breaker.failure-rate-threshold:50}")
+  private float circuitBreakerFailureRate;
 
-    @Value("${shipping.circuit-breaker.wait-duration-seconds:30}")
-    private int circuitBreakerWaitDuration;
+  @Value("${shipping.circuit-breaker.wait-duration-seconds:30}")
+  private int circuitBreakerWaitDuration;
 
-    @Value("${shipping.retry.max-attempts:3}")
-    private int retryMaxAttempts;
+  @Value("${shipping.retry.max-attempts:3}")
+  private int retryMaxAttempts;
 
-    @Value("${shipping.timeout.provider-call-seconds:30}")
-    private int providerTimeoutSeconds;
+  @Value("${shipping.timeout.provider-call-seconds:30}")
+  private int providerTimeoutSeconds;
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+  @Bean
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
+  }
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        
-        // Use String serializer for keys
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-        
-        // Use JSON serializer for values
-        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
-        template.setValueSerializer(jsonSerializer);
-        template.setHashValueSerializer(jsonSerializer);
-        
-        template.afterPropertiesSet();
-        return template;
-    }
+  @Bean
+  public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+    RedisTemplate<String, Object> template = new RedisTemplate<>();
+    template.setConnectionFactory(connectionFactory);
 
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(cacheTtlMinutes))
-                .serializeKeysWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
-                        .fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
+    // Use String serializer for keys
+    template.setKeySerializer(new StringRedisSerializer());
+    template.setHashKeySerializer(new StringRedisSerializer());
 
-        return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(config)
-                .transactionAware()
-                .build();
-    }
+    // Use JSON serializer for values
+    GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
+    template.setValueSerializer(jsonSerializer);
+    template.setHashValueSerializer(jsonSerializer);
 
-    @Bean
-    public CircuitBreakerConfig circuitBreakerConfig() {
-        return CircuitBreakerConfig.custom()
-                .failureRateThreshold(circuitBreakerFailureRate)
-                .waitDurationInOpenState(Duration.ofSeconds(circuitBreakerWaitDuration))
-                .slidingWindowSize(10)
-                .minimumNumberOfCalls(5)
-                .permittedNumberOfCallsInHalfOpenState(3)
-                .build();
-    }
+    template.afterPropertiesSet();
+    return template;
+  }
 
-    @Bean
-    public RetryConfig retryConfig() {
-        return RetryConfig.custom()
-                .maxAttempts(retryMaxAttempts)
-                .waitDuration(Duration.ofSeconds(2))
-                .retryOnException(throwable -> {
-                    // Retry on network errors, timeouts, and service unavailable
-                    return throwable instanceof java.net.SocketTimeoutException ||
-                           throwable instanceof java.net.ConnectException ||
-                           throwable instanceof org.springframework.web.client.ResourceAccessException;
-                })
-                .build();
-    }
+  @Bean
+  public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+        .entryTtl(Duration.ofMinutes(cacheTtlMinutes))
+        .serializeKeysWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
+            .fromSerializer(new StringRedisSerializer()))
+        .serializeValuesWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
+            .fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
-    @Bean
-    public TimeLimiterConfig timeLimiterConfig() {
-        return TimeLimiterConfig.custom()
-                .timeoutDuration(Duration.ofSeconds(providerTimeoutSeconds))
-                .build();
-    }
-} 
+    return RedisCacheManager.builder(connectionFactory)
+        .cacheDefaults(config)
+        .transactionAware()
+        .build();
+  }
+
+  @Bean
+  public CircuitBreakerConfig circuitBreakerConfig() {
+    return CircuitBreakerConfig.custom()
+        .failureRateThreshold(circuitBreakerFailureRate)
+        .waitDurationInOpenState(Duration.ofSeconds(circuitBreakerWaitDuration))
+        .slidingWindowSize(10)
+        .minimumNumberOfCalls(5)
+        .permittedNumberOfCallsInHalfOpenState(3)
+        .build();
+  }
+
+  @Bean
+  public RetryConfig retryConfig() {
+    return RetryConfig.custom()
+        .maxAttempts(retryMaxAttempts)
+        .waitDuration(Duration.ofSeconds(2))
+        .retryOnException(throwable -> {
+          // Retry on network errors, timeouts, and service unavailable
+          return throwable instanceof java.net.SocketTimeoutException ||
+              throwable instanceof java.net.ConnectException ||
+              throwable instanceof org.springframework.web.client.ResourceAccessException;
+        })
+        .build();
+  }
+
+  @Bean
+  public TimeLimiterConfig timeLimiterConfig() {
+    return TimeLimiterConfig.custom()
+        .timeoutDuration(Duration.ofSeconds(providerTimeoutSeconds))
+        .build();
+  }
+}
