@@ -1,0 +1,121 @@
+# Shipping Quote System Configuration
+shipping:
+  # Cache configuration
+  cache:
+    ttl-minutes: 10  # Cache TTL for shipping quotes
+    enabled: true
+    
+  # Circuit breaker configuration
+  circuit-breaker:
+    failure-rate-threshold: 50  # 50% failure rate threshold
+    wait-duration-seconds: 30   # Wait 30 seconds in open state
+    
+  # Retry configuration
+  retry:
+    max-attempts: 3
+    wait-duration-seconds: 2
+    
+  # Timeout configuration
+  timeout:
+    provider-call-seconds: 30
+    
+  # Rate limiting
+  rate-limit:
+    enabled: true
+    requests-per-minute: 60
+    burst-capacity: 10
+    
+  # Provider configurations
+  providers:
+    easypost:
+      enabled: false  # Set to true when you have API key
+      api-key: ${EASYPOST_API_KEY:}
+      base-url: https://api.easypost.com/v2
+      timeout-seconds: 30
+      
+    vnpost:
+      enabled: true   # Can be enabled without API key for basic calculations
+      api-key: ${VNPOST_API_KEY:}
+      base-url: https://api.vnpost.vn/api
+      timeout-seconds: 20
+      
+    # Add more providers as needed
+    # dhl:
+    #   enabled: false
+    #   api-key: ${DHL_API_KEY:}
+    #   base-url: https://api.dhl.com
+    #   timeout-seconds: 30
+      
+    # fedex:
+    #   enabled: false
+    #   api-key: ${FEDEX_API_KEY:}
+    #   base-url: https://api.fedex.com
+    #   timeout-seconds: 30
+
+# Redis configuration for caching
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+# Resilience4j configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      shipping-quotes:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        
+  retry:
+    instances:
+      shipping-quotes:
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
+          - org.springframework.web.client.ResourceAccessException
+          
+  timelimiter:
+    instances:
+      shipping-quotes:
+        timeout-duration: 30s
+
+# Logging configuration
+logging:
+  level:
+    com.winnguyen1905.shipping.core.provider: DEBUG
+    com.winnguyen1905.shipping.core.service: DEBUG
+    org.springframework.cache: INFO
+    org.springframework.data.redis: INFO
+    
+# Management and monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: shipping-service
+  prometheus:
+    metrics:
+      export:
+        enabled: true 

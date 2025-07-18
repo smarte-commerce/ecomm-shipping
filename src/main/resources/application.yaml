@@ -85,6 +85,103 @@ feign:
       default:
         connect-timeout: 5000
         read-timeout: 5000
+        logger-level: basic
+  hystrix:
+    enabled: true
+
+# External Microservices Configuration
+microservices:
+  order-service:
+    url: ${ORDER_SERVICE_URL:http://localhost:8081}
+  product-service:
+    url: ${PRODUCT_SERVICE_URL:http://localhost:8082}
+  customer-service:
+    url: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
+  notification-service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8084}
+  inventory-service:
+    url: ${INVENTORY_SERVICE_URL:http://localhost:8085}
+  payment-service:
+    url: ${PAYMENT_SERVICE_URL:http://localhost:8086}
+
+# Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+        record-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignore-exceptions:
+          - com.winnguyen1905.shipping.exception.BadRequestException
+    instances:
+      order-service:
+        base-config: default
+      product-service:
+        base-config: default
+      customer-service:
+        base-config: default
+      notification-service:
+        base-config: default
+        failure-rate-threshold: 70
+      inventory-service:
+        base-config: default
+      payment-service:
+        base-config: default
+        failure-rate-threshold: 30
+        wait-duration-in-open-state: 10s
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1000ms
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.util.concurrent.TimeoutException
+    instances:
+      order-service:
+        base-config: default
+      product-service:
+        base-config: default
+      customer-service:
+        base-config: default
+      notification-service:
+        base-config: default
+        max-attempts: 2
+      inventory-service:
+        base-config: default
+      payment-service:
+        base-config: default
+        max-attempts: 5
+        wait-duration: 2000ms
+  timeout:
+    configs:
+      default:
+        timeout-duration: 10s
+    instances:
+      order-service:
+        base-config: default
+      product-service:
+        base-config: default
+      customer-service:
+        base-config: default
+      notification-service:
+        base-config: default
+        timeout-duration: 5s
+      inventory-service:
+        base-config: default
+      payment-service:
+        base-config: default
+        timeout-duration: 15s
 
 jwt:
   base64-secret: hl4gDqBxBgOSDWqBlvwFYQInjYRGAdS4lUT7Nf3Zk1nItoSQ9wSFDPU+kXHKcKUW/UKbpGv9bCsa9S/QsoFRHw==
