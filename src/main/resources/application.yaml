@@ -24,6 +24,14 @@ eureka:
 spring:
   application:
     name: SHIPPING-SERVICE
+  
+  # OAuth2 Resource Server Configuration for JWT
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/myrealm
+  
   rabbitmq:
     host: localhost # RabbitMQ host (localhost if running on the same machine)
     port: 5672 # Default RabbitMQ port
