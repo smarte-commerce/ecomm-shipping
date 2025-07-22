@@ -6,13 +6,17 @@ import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.security.core.GrantedAuthority;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Collection;
 
 @Slf4j
 @Component
@@ -47,25 +51,44 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
     String username = null;
     UUID id = null;
     AccountType accountType = AccountType.CUSTOMER; // Default
-    UUID socketClientId = null;
     
     try {
-      // Try to extract from JWT token if available
+      // Try to extract from JWT token if available (preferred method)
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
+      if (authentication instanceof JwtAuthenticationToken) {
+        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+        Jwt jwt = jwtAuth.getToken();
         
-        username = jwt.getClaimAsString(AccountRequestArgument.USERNAME.value);
-        id = UUID.fromString(jwt.getClaimAsString(AccountRequestArgument.ID.value));
-        accountType = AccountType.valueOf(jwt.getClaimAsString(AccountRequestArgument.ROLE.value));
+        // Extract from Keycloak JWT claims
+        username = jwt.getClaimAsString("preferred_username");
+        String subjectId = jwt.getClaimAsString("sub");
+        if (subjectId != null) {
+          id = UUID.fromString(subjectId);
+        }
+        
+        // Extract roles from authorities (already processed by SecurityConfig)
+        Collection<? extends GrantedAuthority> authorities = jwtAuth.getAuthorities();
+        if (!authorities.isEmpty()) {
+          // Convert first authority back to AccountType
+          String role = authorities.iterator().next().getAuthority();
+          if (role.startsWith("ROLE_")) {
+            role = role.substring(5); // Remove "ROLE_" prefix
+          }
+          accountType = AccountType.fromRole(role);
+        }
+        
+        log.debug("Extracted user info from JWT - User: {}, ID: {}, Type: {}", username, id, accountType);
       }
     } catch (Exception e) {
       log.debug("No valid JWT authentication found, using header-based approach: {}", e.getMessage());
     }
     
-    // Fallback to headers if JWT is not available
+    // Fallback to headers if JWT is not available (Gateway scenario)
     if (username == null) {
-      username = webRequest.getHeader("X-User-Username");
+      username = webRequest.getHeader("X-User-Preferred-Username");
+      if (username == null) {
+        username = webRequest.getHeader("X-User-Username"); // Backward compatibility
+      }
     }
     if (id == null) {
       String userIdHeader = webRequest.getHeader("X-User-ID");
@@ -81,23 +104,11 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
       }
     }
     if (accountType == AccountType.CUSTOMER) {
-      String roleHeader = webRequest.getHeader("X-User-Role");
+      String roleHeader = webRequest.getHeader("X-User-Roles");
       if (roleHeader != null) {
-        try {
-          accountType = AccountType.valueOf(roleHeader.toUpperCase());
-        } catch (IllegalArgumentException e) {
-          log.warn("Invalid account type in header: {}", roleHeader);
-        }
-      }
-    }
-
-    // Extract socket client ID if available
-    String socketHeader = webRequest.getHeader("X-Socket-Client-ID");
-    if (socketHeader != null) {
-      try {
-        socketClientId = UUID.fromString(socketHeader);
-      } catch (IllegalArgumentException e) {
-        log.warn("Invalid socket client ID in header: {}", socketHeader);
+        // Take the first role if multiple roles are provided
+        String firstRole = roleHeader.split(",")[0].trim();
+        accountType = AccountType.fromRole(firstRole);
       }
     }
 
@@ -110,7 +121,6 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
         .region(region)
         .username(username)
         .accountType(accountType)
-        .socketClientId(socketClientId)
         .build();
   }
 
@@ -137,8 +147,9 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
     // Priority 3: User region from authentication context (JWT token)
     try {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
+      if (authentication instanceof JwtAuthenticationToken) {
+        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+        Jwt jwt = jwtAuth.getToken();
         String jwtRegion = jwt.getClaimAsString(AccountRequestArgument.REGION.value);
         if (isValidRegionCode(jwtRegion)) {
           log.debug("Using region from JWT token: {}", jwtRegion);
